@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battleship</title>
+    <link rel="stylesheet" href="./index.css">
+    <script type="module" src="./index.js" defer></script>
+
+</head>
+<body class="h-full w-full">
+    <div class="flex flex-col border border-black h-screen w-screen" id="content">
+        <div class="flex flex-col border border-black h-1/4 justify-end items-center" id="topContainer">
+            <div class=" flex border border-black h-1/4 w-1/2 justify-center" id="textPrompt">asd</div>
+        </div>
+        <div class="flex flex-row border-black border-solid h-3/4 w-100" id="bottomContainer">
+
+            <div class="flex border border-black w-1/2 h-full justify-center items-center group" id="bottomLeft">
+                <div class=" grid border border-black w-3/4 h-3/4" id="leftBoard"></div>
+            </div>
+
+            <div class="flex border border-black w-1/2 h-full justify-center items-center" id="bottomRight">
+                <div class=" grid border border-black w-3/4 h-3/4" id="rightBoard"></div>
+            </div>
+    </div>
+</body>
+</html>
