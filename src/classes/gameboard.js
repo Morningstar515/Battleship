@@ -1,12 +1,15 @@
+import { assert } from "console";
 import { Ship } from "./Ship";
+
 
 export class gameboard{
     constructor(){
         this.rows = 10;
         this.columns = 10;
         this.board = this.buildBoard()
-        this.shipLocations = [];
+        this.shipsArray = [];
         this.missLocations = [];
+        this.hitLocations = []; //< ---- log all calls
     }
 
     buildBoard(){
@@ -21,34 +24,98 @@ export class gameboard{
         return arr;
     }
 
-    shipPlacement(ship,cords){
-        ship.cords.push(cords)
-        this.shipLocations.push(cords);                              // [[2,2],[3,2],[4,2],[5,2],[6,2]]
-    }                                                           // [[4,5],[4,6],[4,7]]
-
+    async shipPlacement(ship,cords){
+        if(this.shipsArray.length == 0){
+            this.shipsArray.push(ship);
+            ship.cords.push(cords);
+        }
+        else if(contains(cords,this.shipsArray) !== false){
+             return 'space already taken';
+        }
+        else{
+            this.shipsArray.push(ship);
+            ship.cords.push(cords);
+        }
+    }
+    
+    //Must be Array containing cords
     receiveHit(cords){
-        if(contains(cords,this.shipLocations)){
-            cons
+        if(contains(cords,this.shipsArray) !== false){
+            let hitShip = this.shipsArray[shipLocator(cords,this.shipsArray)];
+            hitShip.isHit();
+            this.hitLocations.push(cords);
         }
         else{
             this.missLocations.push(cords);
         }
     }
 
+    //Check win condition
+    win(){
+        this.shipsArray.every( (ship) => {
+            if(ship.sunk == true){
+                console.log('here')
 
-}
-
-//Hit location helper function
-function contains(shipCords, locationsArray){
-    for (let i = 0; i < locationsArray.length; i++) {
-        for (let j = 0; j < locationsArray[i].length; j++) {
-            if(locationsArray[i][j] === shipCords){
                 return true;
             }
             else{
                 return false;
             }
-            
+        })
+    }
+
+
+}// end gameboard class
+
+//Hit location helper function, returns ship cords if found         /* <--- Gross cubic function needs to be fixed */
+export function contains(shipCords, shipsArray){
+    let result = false;
+    shipCords.forEach(cord => {
+        let i = 0;
+        shipsArray.forEach( ship => {
+            ship.cords[i].forEach( (element) => {
+                if(EqualCords(element,cord)){
+                   result = cord;
+                   return result;
+                }
+                i++;
+            })
+        })
+    });
+    return result;
+}
+
+
+//Identifying ship type based on occupied cords
+function shipLocator(shipCords,shipsArray){
+    let result = '';
+    shipCords.forEach(cord => {
+        let i = 0;
+        shipsArray.forEach( ship => {
+            for (let j = 0; j < ship.cords.length; j++) {
+                let stringShip = JSON.stringify(ship.cords[j]);
+                let stringCord = JSON.stringify(cord);
+                if(stringShip.includes(stringCord)){    
+                    result = i;
+                    return result;
+                }
+            }
+            i++;
+        })
+    });
+    return result;
+}
+
+
+// IsEqual function for contains cords bullshit
+export function EqualCords(c1,c2){
+    c1 = c1.JSON.stringify()
+    c2 = c2.JSON.stringify()
+    for (let i = 0; i < c1.length; i++) {
+        if(c1[i] !== c2[i]){
+            return false
         }
     }
+    return true;
+
 }

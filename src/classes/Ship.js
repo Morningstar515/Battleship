@@ -8,13 +8,23 @@ export class Ship {
     }
 
     isHit(){
-        this.hitMarks += 1;
+        if(this.isSunk()){
+            return 'already hit here'
+        }
+        else{
+            this.hitMarks += 1;
+            this.isSunk()
+        }
+
     }
 
     isSunk(){
         if(this.hitMarks == this.length){
             this.sunk = true;
+            return true;
         }
-        return true;
+        else{
+            return false;
+        }
     }
 }
