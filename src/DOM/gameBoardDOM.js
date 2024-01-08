@@ -1,7 +1,14 @@
+import { once } from "events";
 import { playRound } from "..";
+import { title } from "process";
+// import jquery from 'jquery';
+
+
+
+
 
 // Gamebord DOM setup
-export function generateBoard(game,player,computer){
+export function generateBoard(game,player,enemy){
     let playerDiv = document.getElementById('leftBoard');
     let computerDiv = document.getElementById('rightBoard');
     
@@ -17,51 +24,48 @@ export function generateBoard(game,player,computer){
         row.classList.add('h-full','h-4','flex',)
         playerDiv.append(row);
 
+
+
         for (let j = 0; j < game.columns; j++) {
             let tile = document.createElement('div');
-            tile.classList.add('tile','h-3','w-full','border','border-black');
+            tile.classList.add('tile','h-3','w-full','border','border-black','id');
             tile.setAttribute('id', 'tile-' + '[' + i + ',' + j + ']');
+            tile.isSet = false;
 
-                tile.addEventListener('mouseover', mouseOver(tile,player,computer) );
+            // Set up computer board to recieve attacks
+            if(player.AI){
+                tile.addEventListener('mouseover', () => {
+                    if(tile.isSet == false){
+                        tile.style.backgroundColor = 'lightblue';
+                    }
+                });
+
                 tile.addEventListener('mouseleave', () => {
-
-                    tile.style.backgroundColor = 'white';
-                    tile.removeEventListener('mouseover', mouseOver);
-                    tile.addEventListener('mouseover',mouseOver)
-                })
-                
+                    if(tile.isSet == false){
+                        tile.style.backgroundColor = 'white';
+                    }
+                });
+                addHandle(tile,enemy,player);
+            } 
             row.append(tile);
         }
+
+        // Tile event click callback function
+        function addHandle(tile,player,enemy){
+            tile.addEventListener('click', function event(){
+                let str = JSON.stringify(tile.id)
+                let cords = str.match(/\[([\d,\d]+)\]/);
+                let hit = playRound(player,enemy,cords[0])
+                console.log(hit)
+                if(hit){
+                }
+            }) 
+        } 
+
+        
     }
 }
 
-
-// Tile event mouseover callback function
-function mouseOver(tile,player,computer){
-    let tempTile = document.querySelector('#tile')
-    console.log(tempTile)
-
-    tempTile.style.backgroundColor = 'lightblue';
-    addHandle(tempTile,player,computer);
-}
-
-// Tile event click callback function
-function addHandle(tile,player,computer){
-    let tempTile = document.getElementById(tile.id)
-    console.log(tempTile)
-    tempTile.addEventListener('click', function event(){
-        let str = JSON.stringify(tempTile.classList)
-        let cords = str.match(/\[([\d,\d]+)\]/);
-        playRound(player,computer, cords);
-        this.removeEventListener('click', event) 
-
-    tempTile.addEventListener('mouseleave', () => {
-        tempTile.style.backgroundColor = 'white';
-        this.removeEventListener('click',event);
-    });                    
-    })
-
-}
 
 
 

@@ -2,6 +2,7 @@ import { contains, gameboard } from "./classes/gameboard";
 import { Ship } from "./classes/Ship";
 import { generateBoard, shipPlacementDOM } from "./DOM/gameBoardDOM";
 import { Player } from "./classes/Player";
+import { getRandomCords } from "./classes/Player";
 
 startGame();
 
@@ -14,7 +15,7 @@ function startGame(){
     let computer = new Player("computer1",game2,false,true);
 
     generateBoard(game1, player, computer);
-    generateBoard(game2, player, computer);
+    generateBoard(game2, computer, player);
 
     let ships = [5,4,3,3,2];
 
@@ -25,22 +26,17 @@ function startGame(){
     game1.shipsArray = playerShip;
     game2.shipsArray = computerShip;
 
-
 }
 
 
 //Primary Game logic
-export function playRound(player,computer){
-console.log(player)
-    //Player game logic
-    if(player.currentTurn == true){
-        
-    }
-
-    //AI game logic
-    else{
-    }
-
+export function playRound(player,computer,temp){
+    let cords = [];
+    let compCords = [getRandomCords(player.gameboard)]
+    cords.push(temp)
+    let playerAtk =  player.playerAttack(cords,computer)
+    let compAtk = computer.playerAttack(compCords ,player)
+    return playerAtk;
 }
 
 

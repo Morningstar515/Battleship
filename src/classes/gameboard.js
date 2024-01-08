@@ -1,5 +1,7 @@
 import { assert } from "console";
 import { Ship } from "./Ship";
+import { parse } from "path";
+import { json } from "stream/consumers";
 
 
 export class gameboard{
@@ -39,7 +41,7 @@ export class gameboard{
     }
     
     //Must be Array containing cords
-    receiveHit(cords){
+    recieveHit(cords){
         if(contains(cords,this.shipsArray) !== false){
             let hitShip = this.shipsArray[shipLocator(cords,this.shipsArray)];
             hitShip.isHit();
@@ -69,12 +71,13 @@ export class gameboard{
 
 //Hit location helper function, returns ship cords if found         /* <--- Gross cubic function needs to be fixed */
 export function contains(shipCords, shipsArray){
+
     let result = false;
     shipCords.forEach(cord => {
         let i = 0;
         shipsArray.forEach( ship => {
-            ship.cords[i].forEach( (element) => {
-                if(EqualCords(element,cord)){
+            ship.forEach( (element) => {
+                if(EqualCords(JSON.stringify(element),cord)){
                    result = cord;
                    return result;
                 }
@@ -109,8 +112,7 @@ function shipLocator(shipCords,shipsArray){
 
 // IsEqual function for contains cords bullshit
 export function EqualCords(c1,c2){
-    c1 = c1.JSON.stringify()
-    c2 = c2.JSON.stringify()
+
     for (let i = 0; i < c1.length; i++) {
         if(c1[i] !== c2[i]){
             return false

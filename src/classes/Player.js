@@ -10,28 +10,44 @@ export class Player {
     }
 
     playerAttack(cords,player){
-        if(player.AI == true){
-            player.gameboard.recieveHit(getRandomCords(player.gameboard));
-        }
-        else{
-            player.gameboard.recieveHit(cords); 
-        }
+        player.gameboard.recieveHit(cords);
     }
-
 }
 
 // Random Co-Ordinate generation for computer
 export function getRandomCords(game){
     let cord = [];
+    let result;
     while(cord.length < 2){
-        let num = Math.floor(Math.random() * 100)
+        let num = Math.floor(Math.random() * 10)
         cord.push(num);
     }
+    cord = JSON.stringify(cord);
 
-    if(game.hitLocations.every( (x)=> EqualCords(x,cord)) && game.missLocations.every( (x) => EqualCords(x,cord))){
-        return cord;
+
+    for (let i = 0; i <= game.missLocations.length; i++) {
+        if(game.missLocations.length < 1){
+            return cord;
+        }
+        else if(EqualCords(cord,JSON.stringify(game.missLocations[i]))){
+            return cord;
+        }
+        else{
+            getRandomCords(game);
+        }
+        
     }
-    else{
-        return getRandomCords(game);
+    for (let i = 0; i <= game.hitLocations.length; i++) {
+
+        if(game.hitLocations.length < 1 ){
+            return cord
+        }
+        else if(EqualCords(cord,JSON.stringify(game.hitLocations[i]))){
+            return cord;
+        }
+        else{
+            getRandomCords(game);
+        }
+        
     }
 }
