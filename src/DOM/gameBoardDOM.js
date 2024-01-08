@@ -2,6 +2,7 @@ import { once } from "events";
 import { playRound } from "..";
 import { title } from "process";
 import { Player } from "../classes/Player";
+import { getRandomCords } from "../classes/Player";
 
 
 
@@ -47,8 +48,9 @@ export function generateBoard(game,player,enemy){
                 });
                 addHandle(tile,enemy,player);
             }
-
             row.append(tile);
+
+
 
             // Tile event click callback function and attack DOM logic for players
             function addHandle(tile,player,enemy){
@@ -56,7 +58,6 @@ export function generateBoard(game,player,enemy){
                     let str = JSON.stringify(tile.id)
                     let cords = str.match(/\[([\d,\d]+)\]/);
                     let playerHit = playRound(player,enemy,cords[0])
-                    console.log(playerHit)
                     if(playerHit){
                         tile.style.backgroundColor = 'red'
                         tile.isSet = true;
@@ -65,18 +66,28 @@ export function generateBoard(game,player,enemy){
                         tile.style.backgroundColor = 'lightblue';
                         tile.isSet = true;
                     }
-                }) 
-            } 
 
+                    //Follow player attack with computer counter attack
+                    computerAttackDOM(enemy,player)
+                })
+            } 
         }
-   
+    
     }
 }
 
-function computerAttackDOM(player,computer,cords){
-let compCords = [getRandomCords(player.gameboard)]
-let compuerAtk = computer.playerAttack(compCords);
-let tile = document.getElementById('tile-' + cords);
+function computerAttackDOM(computer,player){
+    let compCords = getRandomCords(player.gameboard);
+    let compuerHit = playRound(computer,player,compCords);
+    let tile = document.getElementById("tile-"+compCords);
+    if(compuerHit){
+        tile.style.backgroundColor = 'red'
+        tile.isSet = true;
+    } 
+    else{
+        tile.style.backgroundColor = 'lightblue';
+        tile.isSet = true;
+    }
 }
 
 

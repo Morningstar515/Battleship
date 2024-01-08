@@ -38,11 +38,21 @@ function startGame(){
 
 
 //Primary Game logic
-export function playRound(player,computer,cords){
-    let compCords = [getRandomCords(player.gameboard)]
-    let playerAtk =  player.playerAttack(cords,computer)
-    let compAtk = computer.playerAttack(compCords ,player)
-    return playerAtk;
+export function playRound(player,enemy,cords){
+    
+    // If player attacking
+    if(!player.AI){
+        let playerAtk =  player.playerAttack(cords,enemy)
+        return playerAtk;
+    }
+
+    // If AI attacking
+    else{
+        let compAtk = player.playerAttack(cords ,enemy)
+        return compAtk;
+
+    }
+    
 }
 
 
