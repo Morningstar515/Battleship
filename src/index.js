@@ -17,23 +17,29 @@ function startGame(){
     generateBoard(game1, player, computer);
     generateBoard(game2, computer, player);
 
-    let ships = [5,4,3,3,2];
-
     /* Pre-determined cords */
     let playerShip =    [ [[0,0],[1,0],[2,0],[3,0],[4,0]], [[2,2],[2,3],[2,4],[2,5]], [[4,2],[4,3],[4,4]], [[6,1],[7,1],[8,1]], [[8,9],[9,9]] ]
     let computerShip =  [ [[1,1],[1,2],[1,3],[1,4],[1,5]], [[2,2],[2,3],[2,4],[2,5]], [[5,2],[6,2],[7,2]], [[7,5],[7,6],[7,7]], [[9,2],[9,3]] ]
 
-    game1.shipsArray = playerShip;
-    game2.shipsArray = computerShip;
+    playerShip.forEach(set => {
+        let ship = new Ship(set.length,0,false);
+        ship.cords = set;
+        player.gameboard.shipsArray.push(ship);
+    });
+
+    computerShip.forEach(set => {
+        let ship = new Ship(set.length,0,false);
+        ship.cords = set
+        computer.gameboard.shipsArray.push(ship);
+    });
+
 
 }
 
 
 //Primary Game logic
-export function playRound(player,computer,temp){
-    let cords = [];
+export function playRound(player,computer,cords){
     let compCords = [getRandomCords(player.gameboard)]
-    cords.push(temp)
     let playerAtk =  player.playerAttack(cords,computer)
     let compAtk = computer.playerAttack(compCords ,player)
     return playerAtk;

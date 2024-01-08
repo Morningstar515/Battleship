@@ -14,6 +14,7 @@ export class Ship {
         else{
             this.hitMarks += 1;
             this.isSunk()
+            return true;
         }
 
     }

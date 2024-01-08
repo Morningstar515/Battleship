@@ -1,7 +1,7 @@
 import { once } from "events";
 import { playRound } from "..";
 import { title } from "process";
-// import jquery from 'jquery';
+import { Player } from "../classes/Player";
 
 
 
@@ -34,36 +34,49 @@ export function generateBoard(game,player,enemy){
 
             // Set up computer board to recieve attacks
             if(player.AI){
-                tile.addEventListener('mouseover', () => {
+                tile.addEventListener('mouseover', function over(){
                     if(tile.isSet == false){
                         tile.style.backgroundColor = 'lightblue';
                     }
                 });
 
-                tile.addEventListener('mouseleave', () => {
+                tile.addEventListener('mouseleave', function leave(){
                     if(tile.isSet == false){
                         tile.style.backgroundColor = 'white';
                     }
                 });
                 addHandle(tile,enemy,player);
-            } 
+            }
+
             row.append(tile);
+
+            // Tile event click callback function and attack DOM logic for players
+            function addHandle(tile,player,enemy){
+                tile.addEventListener('click', function event(){
+                    let str = JSON.stringify(tile.id)
+                    let cords = str.match(/\[([\d,\d]+)\]/);
+                    let playerHit = playRound(player,enemy,cords[0])
+                    console.log(playerHit)
+                    if(playerHit){
+                        tile.style.backgroundColor = 'red'
+                        tile.isSet = true;
+                    } 
+                    else{
+                        tile.style.backgroundColor = 'lightblue';
+                        tile.isSet = true;
+                    }
+                }) 
+            } 
+
         }
-
-        // Tile event click callback function
-        function addHandle(tile,player,enemy){
-            tile.addEventListener('click', function event(){
-                let str = JSON.stringify(tile.id)
-                let cords = str.match(/\[([\d,\d]+)\]/);
-                let hit = playRound(player,enemy,cords[0])
-                console.log(hit)
-                if(hit){
-                }
-            }) 
-        } 
-
-        
+   
     }
+}
+
+function computerAttackDOM(player,computer,cords){
+let compCords = [getRandomCords(player.gameboard)]
+let compuerAtk = computer.playerAttack(compCords);
+let tile = document.getElementById('tile-' + cords);
 }
 
 

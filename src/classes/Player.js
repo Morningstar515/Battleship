@@ -10,14 +10,13 @@ export class Player {
     }
 
     playerAttack(cords,player){
-        player.gameboard.recieveHit(cords);
+        return player.gameboard.recieveHit(cords,player);
     }
 }
 
 // Random Co-Ordinate generation for computer
 export function getRandomCords(game){
     let cord = [];
-    let result;
     while(cord.length < 2){
         let num = Math.floor(Math.random() * 10)
         cord.push(num);
@@ -29,11 +28,12 @@ export function getRandomCords(game){
         if(game.missLocations.length < 1){
             return cord;
         }
-        else if(EqualCords(cord,JSON.stringify(game.missLocations[i]))){
-            return cord;
+        else if(EqualCords(cord,game.missLocations[i])){
+            getRandomCords(game);
+
         }
         else{
-            getRandomCords(game);
+            return cord;
         }
         
     }
@@ -42,7 +42,7 @@ export function getRandomCords(game){
         if(game.hitLocations.length < 1 ){
             return cord
         }
-        else if(EqualCords(cord,JSON.stringify(game.hitLocations[i]))){
+        else if(EqualCords(cord,game.hitLocations[i])){
             return cord;
         }
         else{

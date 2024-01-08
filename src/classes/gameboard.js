@@ -2,6 +2,7 @@ import { assert } from "console";
 import { Ship } from "./Ship";
 import { parse } from "path";
 import { json } from "stream/consumers";
+import { Player } from "./Player";
 
 
 export class gameboard{
@@ -41,11 +42,12 @@ export class gameboard{
     }
     
     //Must be Array containing cords
-    recieveHit(cords){
+    recieveHit(cords,player){
         if(contains(cords,this.shipsArray) !== false){
+            console.log(shipLocator(cords,this.shipsArray))
             let hitShip = this.shipsArray[shipLocator(cords,this.shipsArray)];
-            hitShip.isHit();
             this.hitLocations.push(cords);
+            return hitShip.isHit();
         }
         else{
             this.missLocations.push(cords);
@@ -71,41 +73,35 @@ export class gameboard{
 
 //Hit location helper function, returns ship cords if found         /* <--- Gross cubic function needs to be fixed */
 export function contains(shipCords, shipsArray){
-
     let result = false;
-    shipCords.forEach(cord => {
         let i = 0;
         shipsArray.forEach( ship => {
-            ship.forEach( (element) => {
-                if(EqualCords(JSON.stringify(element),cord)){
-                   result = cord;
+            ship.cords.forEach( (element) => {
+                if(EqualCords(JSON.stringify(element),shipCords)){
+                   result = shipCords;
                    return result;
                 }
                 i++;
             })
         })
-    });
+    
     return result;
 }
 
 
 //Identifying ship type based on occupied cords
 function shipLocator(shipCords,shipsArray){
-    let result = '';
-    shipCords.forEach(cord => {
-        let i = 0;
-        shipsArray.forEach( ship => {
-            for (let j = 0; j < ship.cords.length; j++) {
-                let stringShip = JSON.stringify(ship.cords[j]);
-                let stringCord = JSON.stringify(cord);
-                if(stringShip.includes(stringCord)){    
-                    result = i;
-                    return result;
-                }
-            }
-            i++;
-        })
-    });
+    let result = false;
+    let i = 0;
+    shipsArray.forEach( ship => {
+        let stringShip = JSON.stringify(shipsArray[i].cords);
+        if(stringShip.includes(shipCords)){    
+            result = i;
+            return result;
+        }
+        
+        i++;
+    })
     return result;
 }
 
