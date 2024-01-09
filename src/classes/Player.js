@@ -9,8 +9,8 @@ export class Player {
         this.AI = AI;
     }
 
-    playerAttack(cords,player){
-        return player.gameboard.recieveHit(cords,player);
+    playerAttack(cords,enemy,player){
+        return enemy.gameboard.recieveHit(cords,player);
     }
 }
 

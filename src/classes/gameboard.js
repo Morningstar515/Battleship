@@ -1,7 +1,4 @@
-import { assert } from "console";
 import { Ship } from "./Ship";
-import { parse } from "path";
-import { json } from "stream/consumers";
 import { Player } from "./Player";
 
 
@@ -44,13 +41,12 @@ export class gameboard{
     //Must be Array containing cords
     recieveHit(cords,player){
         if(contains(cords,this.shipsArray) !== false){
-            console.log(shipLocator(cords,this.shipsArray))
             let hitShip = this.shipsArray[shipLocator(cords,this.shipsArray)];
-            this.hitLocations.push(cords);
+            player.gameboard.hitLocations.push(cords);
             return hitShip.isHit();
         }
         else{
-            this.missLocations.push(cords);
+            player.gameboard.missLocations.push(cords);
         }
     }
 
