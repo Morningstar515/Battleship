@@ -4,13 +4,14 @@ import { Player } from "../classes/Player";
 import { getRandomCords } from "../classes/Player";
 import { Ship } from "../classes/Ship";
 import { gameboard } from "../classes/gameboard";
+import { resolve } from "path";
 
 
 
 
 
 // Gamebord DOM setup
-export function generateBoard(game,player,enemy){
+export async function generateBoard(game,player,enemy){
     let playerDiv = document.getElementById('leftBoard');
     let computerDiv = document.getElementById('rightBoard');
     
@@ -35,8 +36,14 @@ export function generateBoard(game,player,enemy){
         }
 
     }
-       // shipPlacementDOM()
-        recieveAttacks(player,enemy)
+        if(!player.AI){
+            let shipsPlaced = await shipPlacementDOM(player)
+            recieveAttacks(player,enemy)
+        }
+        else{
+            return
+        }
+
 
   
 }
@@ -83,7 +90,6 @@ function attackHandle(tile,player,enemy){
 
         let str = JSON.stringify(tile.id)
         let cords = str.match(/\[([\d,\d]+)\]/);
-        console.log(JSON.stringify(cords[0]))
         if(player.gameboard.missLocations.includes(cords[0]) || player.gameboard.hitLocations.includes(cords[0])){
             return
         } 
@@ -100,18 +106,19 @@ function attackHandle(tile,player,enemy){
     
             //Follow player attack with computer counter attack
             computerAttackDOM(enemy,player)
+
+            // console.log(player.gameboard.hitLocations + 'p hit')
+            // console.log(player.gameboard.missLocations + "p miss")
+
+            // console.log(enemy.gameboard.hitLocations + 'c hit')
+            // console.log(enemy.gameboard.missLocations + "c miss")
         }
 
 
     })
 } 
 
-
-
-
-
 function computerAttackDOM(computer,player){
-
     let compCords = getRandomCords(player.gameboard);
     let compuerHit = playRound(computer,player,compCords);
     let tile = document.getElementById("tile-"+compCords);
@@ -133,14 +140,47 @@ function computerAttackDOM(computer,player){
 
 
 
-export function shipPlacementDOM(player){
+export async function shipPlacementDOM(player){
+return new Promise((resolve) => {
+    //Create ships and store in ships array
     const startingShips = [5,4,3,3,2];
     startingShips.forEach(length => {
         let ship = new Ship(length,0,false);
         player.gameboard.shipsArray.push(ship);
     });
 
-    
+    let playerBoard = document.getElementById('leftBoard').getElementsByTagName('div');
+    let playerGameboard = document.getElementById('leftBoard');
+    console.log(playerGameboard)
+    playerGameboard.addEventListener('mouseleave', () => {
+        playerBoard.style.backgroundColor = 'white'
+    })
+
+    // Set up computer board to recieve attacks
+    for (let i = 0; i < 10; i++) {
+        let node = playerBoard[i * 11].childNodes;
+        node.forEach(tile => {
+            let k = 0;
+            tile.addEventListener('mouseover', function over(){
+                tile.style.backgroundColor = 'green';
+                for(let i = 1; i <= startingShips[k]-1; i++) {
+                    tile = tile.nextSibling;
+                    tile.style.backgroundColor = 'green';
+                }
+                
+            });
+            tile.addEventListener('mouseleave', function leave(){
+                tile.style.backgroundColor = 'white';
+                for(let i = 1; i <= startingShips[k]-1; i++) {
+                    tile = tile.previousSibling;
+                    tile.style.backgroundColor = 'white';  
+                }
+            });
+
+        });
+    } 
+    return resolve; 
+})
 
 }
 
