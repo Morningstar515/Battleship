@@ -150,34 +150,67 @@ return new Promise((resolve) => {
     });
 
     let playerBoard = document.getElementById('leftBoard').getElementsByTagName('div');
-    let playerGameboard = document.getElementById('leftBoard');
-    console.log(playerGameboard)
-    playerGameboard.addEventListener('mouseleave', () => {
-        playerBoard.style.backgroundColor = 'white'
-    })
+
+
 
     // Set up computer board to recieve attacks
     for (let i = 0; i < 10; i++) {
-        let node = playerBoard[i * 11].childNodes;
-        node.forEach(tile => {
+        let node = playerBoard[i * 11];
+        node.childNodes.forEach(tile => {
             let k = 0;
+
+            // Adding green highlight for ship placement
             tile.addEventListener('mouseover', function over(){
-                tile.style.backgroundColor = 'green';
-                for(let i = 1; i <= startingShips[k]-1; i++) {
-                    tile = tile.nextSibling;
+                try{
                     tile.style.backgroundColor = 'green';
+                    for(let i = 1; i <= startingShips[k]-1; i++) {
+                        tile = tile.nextSibling;
+                        tile.style.backgroundColor = 'green';
+                    } 
                 }
+                catch(err){
+                    return
+                }
+
                 
             });
+
+            
             tile.addEventListener('mouseleave', function leave(){
-                tile.style.backgroundColor = 'white';
-                for(let i = 1; i <= startingShips[k]-1; i++) {
-                    tile = tile.previousSibling;
-                    tile.style.backgroundColor = 'white';  
+                try{
+                    tile.style.backgroundColor = 'white';
+                    for(let i = 0; i < startingShips[k]-1; i++) {
+                        tile = tile.previousSibling;
+                        tile.style.backgroundColor = 'white';
+                    }
                 }
+                catch{
+                    return
+                }
+
             });
 
         });
+
+        //clearing all colored tiles when row is left
+        node.addEventListener('mouseleave', () => {
+            node.childNodes.forEach( child => {
+                try{
+                    if(child.style.backgroundColor == 'green'){
+                        child.style.backgroundColor = 'white';
+                    }
+                    else{
+                        child.style.backgroundColor == 'green'
+                    }
+                }
+                catch{
+                    return
+                }
+
+            })
+        })
+
+
     } 
     return resolve; 
 })
