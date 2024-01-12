@@ -3,8 +3,10 @@ import { playRound } from "..";
 import { Player } from "../classes/Player";
 import { getRandomCords } from "../classes/Player";
 import { Ship } from "../classes/Ship";
-import { gameboard } from "../classes/gameboard";
+import { EqualCords, gameboard } from "../classes/gameboard";
 import { resolve } from "path";
+import { isSet } from "util/types";
+import { once } from "events";
 
 
 
@@ -14,6 +16,7 @@ import { resolve } from "path";
 export async function generateBoard(game,player,enemy){
     let playerDiv = document.getElementById('leftBoard');
     let computerDiv = document.getElementById('rightBoard');
+    
     
 
     //Populate 2nd board if 1st is done
@@ -31,13 +34,15 @@ export async function generateBoard(game,player,enemy){
             let tile = document.createElement('div');
             tile.classList.add('tile','h-3','w-full','border','border-black','id');
             tile.setAttribute('id', 'tile-' + '[' + i + ',' + j + ']');
+
+
             tile.isSet = false;
             row.append(tile);
         }
 
     }
         if(!player.AI){
-            let shipsPlaced = await shipPlacementDOM(player)
+            await shipPlacementDOM(player)
             recieveAttacks(player,enemy)
         }
         else{
@@ -106,15 +111,7 @@ function attackHandle(tile,player,enemy){
     
             //Follow player attack with computer counter attack
             computerAttackDOM(enemy,player)
-
-            // console.log(player.gameboard.hitLocations + 'p hit')
-            // console.log(player.gameboard.missLocations + "p miss")
-
-            // console.log(enemy.gameboard.hitLocations + 'c hit')
-            // console.log(enemy.gameboard.missLocations + "c miss")
         }
-
-
     })
 } 
 
@@ -139,87 +136,83 @@ function computerAttackDOM(computer,player){
 }
 
 
-
 export async function shipPlacementDOM(player){
-return new Promise((resolve) => {
-    //Create ships and store in ships array
-    const startingShips = [5,4,3,3,2];
-    startingShips.forEach(length => {
-        let ship = new Ship(length,0,false);
-        player.gameboard.shipsArray.push(ship);
-    });
+    return new Promise(  (resolve) => {
 
-    let playerBoard = document.getElementById('leftBoard').getElementsByTagName('div');
-
-
-
-    // Set up computer board to recieve attacks
-    for (let i = 0; i < 10; i++) {
-        let node = playerBoard[i * 11];
-        node.childNodes.forEach(tile => {
-            let k = 0;
-
-            // Adding green highlight for ship placement
-            tile.addEventListener('mouseover', function over(){
-                try{
-                    tile.style.backgroundColor = 'green';
-                    for(let i = 1; i <= startingShips[k]-1; i++) {
-                        tile = tile.nextSibling;
-                        tile.style.backgroundColor = 'green';
-                    } 
-                }
-                catch(err){
-                    return
-                }
-
-                
-            });
-
-            
-            tile.addEventListener('mouseleave', function leave(){
-                try{
-                    tile.style.backgroundColor = 'white';
-                    for(let i = 0; i < startingShips[k]-1; i++) {
-                        tile = tile.previousSibling;
-                        tile.style.backgroundColor = 'white';
-                    }
-                }
-                catch{
-                    return
-                }
-
-            });
-
-        });
-
-        //clearing all colored tiles when row is left
-        node.addEventListener('mouseleave', () => {
-            node.childNodes.forEach( child => {
-                try{
-                    if(child.style.backgroundColor == 'green'){
-                        child.style.backgroundColor = 'white';
-                    }
-                    else{
-                        child.style.backgroundColor == 'green'
-                    }
-                }
-                catch{
-                    return
-                }
-
-            })
-        })
-
-
-    } 
-    return resolve; 
-})
+        //Create ships and store in ships array
+        const startingShips = [5,4,3,3,2];
+        let i = 0
+        for(let length of startingShips){
+            let ship = new Ship(length,0,false);
+            player.gameboard.shipsArray.push(ship);
+            shipPlacementDragAndDrop(startingShips[i]);
+            i++;
+        }
+        return resolve; 
+    })
 
 }
 
+function shipPlacementDragAndDrop(currShip){
+    const ship = document.querySelectorAll(".ship");
+    const tile = document.querySelectorAll('.tile')
+    let pieceDivLeft = document.getElementById("pieceDivLeft");
+    let rotateFlag = false;
+    //Give tiles drop acceptance
+    tile.forEach(tile => {
+        tile.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            if(!rotateFlag){
+                let tileId = event.target.id.match(/\[([\d,\d]+)\]/)[1][2]; 
+                event.target.classList.add('bg-green-500');
+                let a = event.target.parentElement.previousSibling;
+                for (let i = 1; i <= currShip / 2; i++) {
+                    a.childNodes.forEach(element => {
+                        let eleId = element.id.match(/\[([\d,\d]+)\]/)[1][2];
+                        if(tileId == eleId){
+                            element.classList.add('bg-green-500');
+                            tile.addEventListener('dragleave', (event) => {
+                                element.classList.remove('bg-green-500')
+                           })
+                           a = element.parentElement.previousSibling;
+                        }
+                    });
+                    
+                }
+
+
+            }
+        })
+
+        tile.addEventListener('dragleave', (event) => {
+            event.target.classList.remove('bg-green-500')
+       })
+
+    })
 
 
 
+    ship.forEach( ship => {
+        ship.addEventListener('dragstart', () => {
+            ship.classList.add('opacity-20');
+        })
+
+
+        ship.addEventListener('dragend', () => {
+            ship.classList.remove('opacity-20');
+            if(ship.parentElement == document.getElementById("pieceDivLeft")){
+                pieceDivLeft.removeChild(document.getElementById(ship.id))
+            }
+            else{
+                pieceDivRight.removeChild(document.getElementById(ship.id))
+
+            }
+        })
+    })
+
+
+
+}
 
 
 
