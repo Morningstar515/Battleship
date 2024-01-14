@@ -7,6 +7,7 @@ import { EqualCords, gameboard } from "../classes/gameboard";
 import { resolve } from "path";
 import { isSet } from "util/types";
 import { once } from "events";
+import { removeAllListeners } from "process";
 
 
 
@@ -137,7 +138,7 @@ function computerAttackDOM(computer,player){
 
 
 export async function shipPlacementDOM(player){
-    return new Promise(  (resolve) => {
+    return new Promise(  async (resolve) => {
 
         //Create ships and store in ships array
         const startingShips = [5,4,3,3,2];
@@ -145,73 +146,80 @@ export async function shipPlacementDOM(player){
         for(let length of startingShips){
             let ship = new Ship(length,0,false);
             player.gameboard.shipsArray.push(ship);
-            shipPlacementDragAndDrop(startingShips[i]);
+           await shipPlacementDragAndDrop(startingShips[i]);
             i++;
         }
+
+
         return resolve; 
     })
 
 }
 
-function shipPlacementDragAndDrop(currShip){
-    const ship = document.querySelectorAll(".ship");
-    const tile = document.querySelectorAll('.tile')
-    let pieceDivLeft = document.getElementById("pieceDivLeft");
-    let rotateFlag = false;
-    //Give tiles drop acceptance
-    tile.forEach(tile => {
-        tile.addEventListener('dragover', (event) => {
-            event.preventDefault();
-            if(!rotateFlag){
-                let tileId = event.target.id.match(/\[([\d,\d]+)\]/)[1][2]; 
-                event.target.classList.add('bg-green-500');
-                let a = event.target.parentElement.previousSibling;
-                for (let i = 1; i <= currShip / 2; i++) {
-                    a.childNodes.forEach(element => {
-                        let eleId = element.id.match(/\[([\d,\d]+)\]/)[1][2];
-                        if(tileId == eleId){
-                            element.classList.add('bg-green-500');
-                            tile.addEventListener('dragleave', (event) => {
-                                element.classList.remove('bg-green-500')
-                           })
-                           a = element.parentElement.previousSibling;
-                        }
-                    });
-                    
+
+function selection(tile,currShip){
+    tile.classList.add("bg-green-500");
+    for (let i = currShip; i > 0; i--) {
+        console.log(i)
+
+    // Get tile id's of next 4 tiles
+        let tileIdRow = tile.id.match(/\[([\d,\d]+)\]/);
+        //Find next row 1st digit and select
+        let nextId = document.getElementById("tile-[" + (parseInt(tileIdRow[0][1]) + i - 1) + "," + parseInt(tileIdRow[0][3]) +']') 
+        nextId.classList.add("bg-green-500")
+
+        //Add deselect function
+        tile.addEventListener('mouseleave', function leaveTile() {
+            for (let i = currShip; i > 0; i--) {
+                console.log(i)
+                tileIdRow = tile.id.match(/\[([\d,\d]+)\]/);
+                nextId = document.getElementById("tile-[" + (parseInt(tileIdRow[0][1]) + i - 1) + "," + parseInt(tileIdRow[0][3]) +']'); 
+                nextId.classList.remove("bg-green-500")
+                tile.removeEventListener('mouseleave', leaveTile);
+
+            }                    
+        })
+    }
+}
+
+
+async function shipPlacementDragAndDrop(currShip){
+    return new Promise( (resolve) => {
+        let tile = document.querySelectorAll(".tile");
+        tile.forEach(oldtile => {
+            let newTile = oldtile.cloneNode(true)
+            oldtile.replaceWith(newTile);
+            newTile.addEventListener('mouseover', function listeners(){
+                selection(newTile,currShip)
+                newTile.removeEventListener('mouseover',listeners);
+                newTile.addEventListener('mouseover',listeners);
+
+            })
+
+            //Click function defining final position
+            newTile.addEventListener('click', function click() {
+                for (let i = currShip; i > 0; i--) {  
+                    console.log(i)
+                    let tileIdRow = newTile.id.match(/\[([\d,\d]+)\]/);
+                    let nextId = document.getElementById("tile-[" + (parseInt(tileIdRow[0][1]) + i - 1) + "," + parseInt(tileIdRow[0][3]) +']') 
+                    nextId.classList.remove("bg-green-500")
+                    nextId.classList.add("bg-blue-500")
                 }
+                return resolve()
+            })
 
 
-            }
+            newTile.addEventListener('mouseleave', () => {
+                if(!newTile.classList.contains("bg-blue-500")){
+                    newTile.classList.remove("bg-green-500");
+                }
+            })
+
         })
-
-        tile.addEventListener('dragleave', (event) => {
-            event.target.classList.remove('bg-green-500')
-       })
+        
 
     })
-
-
-
-    ship.forEach( ship => {
-        ship.addEventListener('dragstart', () => {
-            ship.classList.add('opacity-20');
-        })
-
-
-        ship.addEventListener('dragend', () => {
-            ship.classList.remove('opacity-20');
-            if(ship.parentElement == document.getElementById("pieceDivLeft")){
-                pieceDivLeft.removeChild(document.getElementById(ship.id))
-            }
-            else{
-                pieceDivRight.removeChild(document.getElementById(ship.id))
-
-            }
-        })
-    })
-
-
-
+   
 }
 
 
