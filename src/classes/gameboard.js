@@ -10,6 +10,7 @@ export class gameboard{
         this.shipsArray = [];
         this.missLocations = [];
         this.hitLocations = []; //< ---- log all calls
+
     }
 
     buildBoard(){
